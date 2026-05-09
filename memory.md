@@ -31,10 +31,10 @@ A continuación, se detalla el plan de desarrollo dividido en pasos secuenciales
 **Validación requerida:** Crear una instancia de Task, convertirla a dict y viceversa, verificando que los tipos y valores sean correctos.
 
 ### Paso 4: Implementar `TaskManager`
-- [ ] Crear la clase `TaskManager` en `app/services/task_manager.py`
-- [ ] Implementar método estático `load_tasks()` para cargar tareas desde `app/data/tasks.json` y convertirlas en objetos Task
-- [ ] Implementar método estático `save_tasks()` para guardar la lista de objetos Task en el archivo JSON
-- [ ] Asegurar manejo correcto de lectura/escritura en `tasks.json`, incluyendo casos de archivo vacío o inexistente
+- [x] Crear la clase `TaskManager` en `app/services/task_manager.py`
+- [x] Implementar método estático `load_tasks()` para cargar tareas desde `app/data/tasks.json` y convertirlas en objetos Task
+- [x] Implementar método estático `save_tasks()` para guardar la lista de objetos Task en el archivo JSON
+- [x] Asegurar manejo correcto de lectura/escritura en `tasks.json`, incluyendo casos de archivo vacío o inexistente
 
 **Validación requerida:** Probar carga y guardado de tareas, verificando que el archivo JSON se actualice correctamente y que los datos se mantengan consistentes.
 
@@ -63,5 +63,5 @@ A continuación, se detalla el plan de desarrollo dividido en pasos secuenciales
 ## Estado del Proyecto
 
 - **Inicio:** [Fecha actual]
-- **Progreso:** Paso 3 completado. Modelo `Task` implementado.
-- **Próximo Paso:** Paso 4 - Implementar `TaskManager`.
+- **Progreso:** Paso 4 completado. `TaskManager` implementado.
+- **Próximo Paso:** Paso 5 - Implementar Endpoints CRUD.

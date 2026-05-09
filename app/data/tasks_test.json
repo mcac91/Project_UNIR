@@ -1,0 +1,11 @@
+[
+  {
+    "id": 2,
+    "title": "Otra",
+    "description": "Otra descripción",
+    "priority": "alta",
+    "effort_hours": 1.0,
+    "status": "en progreso",
+    "assigned_to": "Luis"
+  }
+]
