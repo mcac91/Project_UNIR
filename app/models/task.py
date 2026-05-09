@@ -32,7 +32,7 @@ class Task(BaseModel):
 
     def to_dict(self) -> dict[str, object]:
         """Convierte la tarea a un diccionario serializable."""
-        return self.model_dump()
+        return self.model_dump(mode="json")
 
     @classmethod
     def from_dict(cls, data: dict[str, object]) -> Task:

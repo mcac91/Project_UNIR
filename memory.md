@@ -39,9 +39,9 @@ A continuación, se detalla el plan de desarrollo dividido en pasos secuenciales
 **Validación requerida:** Probar carga y guardado de tareas, verificando que el archivo JSON se actualice correctamente y que los datos se mantengan consistentes.
 
 ### Paso 5: Implementar Endpoints CRUD
-- [ ] Crear archivo de rutas `app/routes/tasks.py` con los endpoints definidos (POST /tasks, GET /tasks, GET /tasks/{id}, PUT /tasks/{id}, DELETE /tasks/{id})
-- [ ] Crear controlador `app/controllers/tasks_controller.py` para manejar la lógica de petición/respuesta
-- [ ] Conectar rutas con el controlador y el controlador con `TaskManager`
+- [x] Crear archivo de rutas `app/routes/tasks.py` con los endpoints definidos (POST /tasks, GET /tasks, GET /tasks/{id}, PUT /tasks/{id}, DELETE /tasks/{id})
+- [x] Crear controlador `app/controllers/tasks_controller.py` para manejar la lógica de petición/respuesta
+- [x] Conectar rutas con el controlador y el controlador con `TaskManager`
 
 **Validación requerida:** Probar cada endpoint individualmente mediante requests HTTP, verificando respuestas JSON correctas y manejo de errores (ej. tarea no encontrada).
 
@@ -63,5 +63,5 @@ A continuación, se detalla el plan de desarrollo dividido en pasos secuenciales
 ## Estado del Proyecto
 
 - **Inicio:** [Fecha actual]
-- **Progreso:** Paso 4 completado. `TaskManager` implementado.
-- **Próximo Paso:** Paso 5 - Implementar Endpoints CRUD.
+- **Progreso:** Paso 5 completado. Endpoints CRUD implementados.
+- **Próximo Paso:** Paso 6 - Validación Final.

@@ -1,11 +1,1 @@
-[
-  {
-    "id": 1,
-    "title": "Prueba",
-    "description": "Descripción de prueba",
-    "priority": "media",
-    "effort_hours": 2.5,
-    "status": "pendiente",
-    "assigned_to": "Ana"
-  }
-]
+[]
