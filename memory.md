@@ -11,22 +11,22 @@ El proyecto se llevará a cabo siguiendo estrictamente las reglas definidas en `
 A continuación, se detalla el plan de desarrollo dividido en pasos secuenciales. Cada paso incluye una checklist de subtareas que deben completarse y validarse antes de avanzar al siguiente. No se procederá al paso siguiente hasta que el desarrollador confirme la validación de todas las subtareas del paso actual.
 
 ### Paso 1: Preparación del Entorno
-- [ ] Crear entorno virtual (`venv`)
-- [ ] Instalar dependencias necesarias (FastAPI, Uvicorn, Pydantic)
-- [ ] Generar `requirements.txt` con las dependencias instaladas
+- [x] Crear entorno virtual (`venv`)
+- [x] Instalar dependencias necesarias (FastAPI, Uvicorn, Pydantic)
+- [x] Generar `requirements.txt` con las dependencias instaladas
 
 **Validación requerida:** Verificar que el entorno virtual esté activado y que las dependencias se instalen correctamente sin errores.
 
 ### Paso 2: Crear Arquitectura del Proyecto
-- [ ] Crear carpetas base: `app/routes/`, `app/controllers/`, `app/models/`, `app/services/`, `app/data/`
-- [ ] Configurar punto de entrada (`app/main.py`) con la aplicación FastAPI básica
+- [x] Crear carpetas base: `app/routes/`, `app/controllers/`, `app/models/`, `app/services/`, `app/data/`
+- [x] Configurar punto de entrada (`app/main.py`) con la aplicación FastAPI básica
 
 **Validación requerida:** Confirmar que la estructura de carpetas existe y que `main.py` se ejecuta sin errores, mostrando la documentación Swagger básica.
 
 ### Paso 3: Implementar Modelo `Task`
-- [ ] Definir la clase `Task` en `app/models/task.py` con todos los atributos requeridos (id, title, description, priority, effort_hours, status, assigned_to)
-- [ ] Implementar método `to_dict()` para convertir el objeto a diccionario
-- [ ] Implementar método `from_dict()` para crear un objeto Task a partir de un diccionario
+- [x] Definir la clase `Task` en `app/models/task.py` con todos los atributos requeridos (id, title, description, priority, effort_hours, status, assigned_to)
+- [x] Implementar método `to_dict()` para convertir el objeto a diccionario
+- [x] Implementar método `from_dict()` para crear un objeto Task a partir de un diccionario
 
 **Validación requerida:** Crear una instancia de Task, convertirla a dict y viceversa, verificando que los tipos y valores sean correctos.
 
@@ -63,5 +63,5 @@ A continuación, se detalla el plan de desarrollo dividido en pasos secuenciales
 ## Estado del Proyecto
 
 - **Inicio:** [Fecha actual]
-- **Progreso:** Pendiente iniciar desarrollo.
-- **Próximo Paso:** Paso 1 - Preparación del Entorno.
+- **Progreso:** Paso 3 completado. Modelo `Task` implementado.
+- **Próximo Paso:** Paso 4 - Implementar `TaskManager`.
