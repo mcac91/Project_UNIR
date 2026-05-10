@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from app.controllers.tasks_controller import TaskController
-from app.models.task import Task
+from app.models.task import Task, TaskCreate
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 controller = TaskController()
@@ -21,7 +21,7 @@ async def read_task(task_id: int) -> Task:
 
 
 @router.post("/", response_model=Task, status_code=201)
-async def create_task(task: Task) -> Task:
+async def create_task(task: TaskCreate) -> Task:
     try:
         return controller.create_task(task)
     except ValueError as error:
@@ -29,7 +29,7 @@ async def create_task(task: Task) -> Task:
 
 
 @router.put("/{task_id}", response_model=Task)
-async def update_task(task_id: int, task: Task) -> Task:
+async def update_task(task_id: int, task: TaskCreate) -> Task:
     try:
         return controller.update_task(task_id, task)
     except ValueError as error:

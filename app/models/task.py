@@ -19,16 +19,24 @@ class Status(str, Enum):
     COMPLETADA = "completada"
 
 
-class Task(BaseModel):
-    """Representa una tarea en el sistema."""
-
-    id: int = Field(..., ge=1)
+class TaskBase(BaseModel):
     title: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
     priority: Priority
     effort_hours: float = Field(..., ge=0)
     status: Status
     assigned_to: str = Field(..., min_length=1)
+
+
+class TaskCreate(TaskBase):
+    """Modelo de entrada para crear una tarea."""
+    pass
+
+
+class Task(TaskBase):
+    """Representa una tarea con id en el sistema."""
+
+    id: int = Field(..., ge=1)
 
     def to_dict(self) -> dict[str, object]:
         """Convierte la tarea a un diccionario serializable."""

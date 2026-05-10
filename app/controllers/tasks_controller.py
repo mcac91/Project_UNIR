@@ -1,6 +1,6 @@
 from typing import List
 
-from app.models.task import Task
+from app.models.task import Task, TaskCreate
 from app.services.task_manager import TaskManager
 
 
@@ -20,23 +20,22 @@ class TaskController:
                 return task
         raise ValueError(f"Tarea con id {task_id} no encontrada")
 
-    def create_task(self, task: Task) -> Task:
+    def create_task(self, task_data: TaskCreate) -> Task:
         tasks = self.manager.load_tasks()
-        if any(existing.id == task.id for existing in tasks):
-            raise ValueError(f"Tarea con id {task.id} ya existe")
+        next_id = max((existing.id for existing in tasks), default=0) + 1
+        task = Task(id=next_id, **task_data.model_dump())
         tasks.append(task)
         self.manager.save_tasks(tasks)
         return task
 
-    def update_task(self, task_id: int, task: Task) -> Task:
+    def update_task(self, task_id: int, task_data: TaskCreate) -> Task:
         tasks = self.manager.load_tasks()
         for index, existing in enumerate(tasks):
             if existing.id == task_id:
-                if task.id != task_id:
-                    raise ValueError("El id de la tarea no coincide con el id de la ruta")
-                tasks[index] = task
+                updated_task = Task(id=task_id, **task_data.model_dump())
+                tasks[index] = updated_task
                 self.manager.save_tasks(tasks)
-                return task
+                return updated_task
         raise ValueError(f"Tarea con id {task_id} no encontrada")
 
     def delete_task(self, task_id: int) -> None:

@@ -46,10 +46,10 @@ A continuación, se detalla el plan de desarrollo dividido en pasos secuenciales
 **Validación requerida:** Probar cada endpoint individualmente mediante requests HTTP, verificando respuestas JSON correctas y manejo de errores (ej. tarea no encontrada).
 
 ### Paso 6: Validación Final
-- [ ] Probar todos los endpoints en conjunto para asegurar integración completa
-- [ ] Verificar persistencia correcta en JSON tras operaciones CRUD
-- [ ] Comprobar formato correcto de respuestas JSON y cumplimiento de la API REST
-- [ ] Ejecutar pruebas manuales exhaustivas para cubrir casos edge (IDs inexistentes, datos inválidos, etc.)
+- [x] Probar todos los endpoints en conjunto para asegurar integración completa
+- [x] Verificar persistencia correcta en JSON tras operaciones CRUD
+- [x] Comprobar formato correcto de respuestas JSON y cumplimiento de la API REST
+- [x] Ejecutar pruebas manuales exhaustivas para cubrir casos edge (IDs inexistentes, datos inválidos, etc.)
 
 **Validación requerida:** La aplicación debe ser completamente funcional, con todos los endpoints operativos y datos persistiendo correctamente en `tasks.json`.
 
@@ -63,5 +63,22 @@ A continuación, se detalla el plan de desarrollo dividido en pasos secuenciales
 ## Estado del Proyecto
 
 - **Inicio:** [Fecha actual]
-- **Progreso:** Paso 5 completado. Endpoints CRUD implementados.
-- **Próximo Paso:** Paso 6 - Validación Final.
+- **Progreso:** COMPLETADO. Todos los pasos finalizados exitosamente.
+- **Próximo Paso:** Entregable 1 listo para revisión.
+
+---
+
+## Pruebas Realizadas
+
+Se ejecutaron pruebas exhaustivas de todos los endpoints CRUD:
+
+1. **POST /tasks:** Crear tareas ✓
+2. **GET /tasks:** Obtener todas las tareas ✓
+3. **GET /tasks/{id}:** Obtener tarea específica ✓
+4. **PUT /tasks/{id}:** Actualizar tarea ✓
+5. **DELETE /tasks/{id}:** Eliminar tarea ✓
+6. **Manejo de errores:** 404 (no encontrado), 400 (dato inválido) ✓
+
+Todas las pruebas pasaron exitosamente.
+
+Para detalles completos, consultar [TESTING.md](TESTING.md).
