@@ -316,14 +316,14 @@ Este documento guía el desarrollo paso a paso del **Entregable 2**.
 ## Checklist de Validación por Fases
 
 ### ✅ Fase 1 - Preparación
-- [ ] Script `test_llm_connection.py` ejecutado exitosamente
-- [ ] `.env` configurado con credenciales válidas
-- [ ] Dependencias instaladas (`pip freeze` actualizado)
+- [x] Script `test_llm_connection.py` ejecutado exitosamente
+- [x] `.env` configurado con credenciales válidas
+- [x] Dependencias instaladas (`pip freeze` actualizado)
 
 ### ✅ Fase 2 - Modelo Task
-- [ ] Nuevos campos en modelo Task
-- [ ] CRUD original funciona con nuevos campos
-- [ ] Tests de modelo pasan
+- [x] Nuevos campos en modelo Task
+- [x] CRUD original funciona con nuevos campos
+- [x] Tests de modelo pasan
 
 ### ✅ Fase 3 - LLM Client
 - [ ] Cliente se inicializa sin errores
@@ -409,9 +409,9 @@ README.md                      (actualizar)
 
 | Fase | Estado | Notas |
 |------|--------|-------|
-| 1 - Preparación | ⏳ PENDIENTE | Espera validación usuario |
-| 2 - Modelo Task | ⏳ PENDIENTE | Depende de Fase 1 ✅ |
-| 3 - LLM Client | ⏳ PENDIENTE | Depende de Fase 2 ✅ |
+| 1 - Preparación | ✅ COMPLETADA | Validada por el usuario |
+| 2 - Modelo Task | ✅ COMPLETADA | Campos añadidos y test validados |
+| 3 - LLM Client | ⏳ EN PROGRESO | Depende de Fase 2 ✅ |
 | 4 - `/describe` | ⏳ PENDIENTE | Depende de Fase 3 ✅ |
 | 5 - `/categorize` | ⏳ PENDIENTE | Depende de Fase 3 ✅ |
 | 6 - `/estimate` | ⏳ PENDIENTE | Depende de Fase 3 ✅ |
@@ -420,4 +420,4 @@ README.md                      (actualizar)
 
 ---
 
-**Próximo paso:** Ejecutar Fase 1 y validación usuario
+**Próximo paso:** Iniciar Fase 3: Implementación del cliente LLM y manejo de llamadas al modelo
