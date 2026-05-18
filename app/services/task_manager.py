@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import List
 
+from app.config.prompts import DESCRIBE_TASK_PROMPT
 from app.models.task import Task
+from app.services.llm_client import LLMClient
+
+logger = logging.getLogger(__name__)
 
 
 class TaskManager:
@@ -36,3 +41,43 @@ class TaskManager:
         self.data_file.write_text(
             json.dumps(raw_items, indent=2, ensure_ascii=False), encoding="utf-8"
         )
+
+    def describe_task(
+        self,
+        title: str,
+        context: str | None = None,
+    ) -> str:
+        """Genera una descripción de tarea a partir del título y contexto opcional.
+        
+        Usa el modelo configurado en LLM_MODEL del .env sin forzar un modelo específico.
+        """
+        title_value = title.strip()
+        if not title_value:
+            raise ValueError("El título de la tarea es obligatorio")
+
+        context_value = (context or "").strip() or "Sin contexto adicional."
+        prompt = DESCRIBE_TASK_PROMPT.format(
+            title=title_value,
+            context=context_value,
+        )
+
+        client = LLMClient()
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Eres un asistente experto en describir tareas técnicas de forma concisa y profesional. "
+                    "Devuelve solo la descripción de la tarea, sin encabezados ni explicaciones adicionales."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+
+        # No pasar model explícitamente: let LLMClient use its default_model from .env
+        description = client.chat_completion(
+            messages=messages,
+            temperature=0.5,
+            max_completion_tokens=200,
+        )
+
+        return description.strip()

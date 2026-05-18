@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 from app.services.llm_client import LLMClient, LLMConnectionError, LLMResponseError
 
-# Cargar variables de entorno desde .env para pruebas que dependen de configuración
 load_dotenv()
 
 
@@ -23,9 +22,7 @@ class DummyResponse:
 
 
 def test_llm_client_returns_content(monkeypatch, tmp_path):
-    # Usar variables reales desde .env (mock del cliente OpenAI sigue aplicado)
-
-    # Mock OpenAI client
+    # Mock del cliente Azure OpenAI
     class MockChat:
         class completions:
             @staticmethod
@@ -35,7 +32,7 @@ def test_llm_client_returns_content(monkeypatch, tmp_path):
     class MockClient:
         chat = MockChat()
 
-    monkeypatch.setattr("app.services.llm_client.OpenAI", lambda *args, **kwargs: MockClient())
+    monkeypatch.setattr("app.services.llm_client.AzureOpenAI", lambda *args, **kwargs: MockClient())
 
     client = LLMClient()
     content = client.chat_completion(messages=[{"role": "user", "content": "Hola"}], model="deployment")
@@ -43,8 +40,6 @@ def test_llm_client_returns_content(monkeypatch, tmp_path):
 
 
 def test_llm_client_retries_on_error(monkeypatch):
-    # Variables de entorno se cargan desde .env
-
     calls = {"count": 0}
 
     class FlakyChat:
@@ -59,7 +54,7 @@ def test_llm_client_retries_on_error(monkeypatch):
     class MockClient:
         chat = FlakyChat()
 
-    monkeypatch.setattr("app.services.llm_client.OpenAI", lambda *args, **kwargs: MockClient())
+    monkeypatch.setattr("app.services.llm_client.AzureOpenAI", lambda *args, **kwargs: MockClient())
 
     client = LLMClient(max_retries=2)
     content = client.chat_completion(messages=[{"role": "user", "content": "Hola"}], model="deployment")
@@ -67,9 +62,29 @@ def test_llm_client_retries_on_error(monkeypatch):
     assert calls["count"] == 2
 
 
-def test_llm_client_raises_on_bad_response(monkeypatch):
-    # Variables de entorno se cargan desde .env
+def test_llm_client_uses_env_model_by_default(monkeypatch):
+    class MockChat:
+        class completions:
+            @staticmethod
+            def create(**kwargs):
+                # Verifica que se usa el modelo del .env
+                assert kwargs["model"] == "test-deployment"
+                return DummyResponse("OK_RESPONSE")
 
+    class MockClient:
+        chat = MockChat()
+
+    monkeypatch.setenv("LLM_MODEL", "test-deployment")
+    monkeypatch.setattr("app.services.llm_client.AzureOpenAI", lambda *args, **kwargs: MockClient())
+
+    client = LLMClient()
+    # No pasar model: debe usar LLM_MODEL del .env
+    content = client.chat_completion(messages=[{"role": "user", "content": "Hola"}])
+
+    assert content == "OK_RESPONSE"
+
+
+def test_llm_client_raises_on_bad_response(monkeypatch):
     class EmptyResponse:
         def __init__(self):
             self.choices = []
@@ -81,7 +96,7 @@ def test_llm_client_raises_on_bad_response(monkeypatch):
                 def create(**kwargs):
                     return EmptyResponse()
 
-    monkeypatch.setattr("app.services.llm_client.OpenAI", lambda *args, **kwargs: MockClient())
+    monkeypatch.setattr("app.services.llm_client.AzureOpenAI", lambda *args, **kwargs: MockClient())
 
     client = LLMClient()
     try:
