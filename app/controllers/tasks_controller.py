@@ -1,6 +1,7 @@
 from typing import List
 
-from app.config.prompts import DESCRIBE_TASK_PROMPT
+from app.config.constants import TASK_CATEGORIES, DEFAULT_CATEGORY
+from app.config.prompts import DESCRIBE_TASK_PROMPT, CATEGORIZE_TASK_PROMPT
 from app.models.task import Task, TaskCreate
 from app.services.llm_client import LLMClient
 from app.services.task_manager import TaskManager
@@ -84,6 +85,62 @@ class TaskController:
             status=task.status,
             assigned_to=task.assigned_to,
             category=task.category,
+            risk_analysis=task.risk_analysis,
+            risk_mitigation=task.risk_mitigation,
+        )
+        
+        return self.manager.update_task(updated_task)
+
+    def categorize_task(self, task_id: int) -> Task:
+        """Clasifica una tarea en una categoría predefinida usando Azure OpenAI."""
+        # Obtener tarea
+        task = self.manager.get_task(task_id)
+        
+        # Generar categoría usando LLM
+        categories_str = ", ".join(TASK_CATEGORIES)
+        title_value = task.title.strip()
+        description_value = (task.description or "").strip() or "Sin descripción"
+        
+        prompt = CATEGORIZE_TASK_PROMPT.format(
+            categories=categories_str,
+            title=title_value,
+            description=description_value,
+        )
+
+        client = LLMClient()
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Eres un asistente experto en clasificar tareas técnicas. "
+                    "Devuelve SOLO el nombre exacto de la categoría de la lista proporcionada, sin explicaciones."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+
+        category_response = client.chat_completion(
+            messages=messages,
+            temperature=0.3,
+            max_completion_tokens=50,
+        )
+
+        # Validar y limpiar respuesta
+        category = category_response.strip()
+        if category not in TASK_CATEGORIES:
+            # Si no es válida, usar categoría por defecto
+            category = DEFAULT_CATEGORY
+
+        # Actualizar tarea con categoría asignada
+        updated_task = Task(
+            id=task.id,
+            title=task.title,
+            description=task.description,
+            priority=task.priority,
+            effort_hours=task.effort_hours,
+            status=task.status,
+            assigned_to=task.assigned_to,
+            category=category,
             risk_analysis=task.risk_analysis,
             risk_mitigation=task.risk_mitigation,
         )

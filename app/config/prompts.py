@@ -6,3 +6,10 @@ DESCRIBE_TASK_PROMPT = (
     "Contexto adicional: {context}\n"
     "Devuelve solo la descripción de la tarea sin encabezados ni explicaciones adicionales."
 )
+
+CATEGORIZE_TASK_PROMPT = (
+    "Clasifica la siguiente tarea en UNA SOLA categoría de esta lista: {categories}\n"
+    "Título: {title}\n"
+    "Descripción: {description}\n"
+    "Responde SOLO con el nombre exacto de la categoría de la lista, sin explicaciones adicionales."
+)
