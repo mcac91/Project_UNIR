@@ -1,13 +1,12 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.models.task import Priority, Status
+from app.models.task import Priority, Status, Task
+from app.controllers.tasks_controller import TaskController
 from app.services.task_manager import TaskManager
 
 
 def test_describe_task_endpoint_generates_and_updates_task(monkeypatch, tmp_path) -> None:
-    from app.models.task import Task
-
     class FakeManager:
         def __init__(self):
             self.tasks_file = tmp_path / "tasks.json"
@@ -27,14 +26,19 @@ def test_describe_task_endpoint_generates_and_updates_task(monkeypatch, tmp_path
         def get_task(self, task_id: int):
             return self.real_manager.get_task(task_id)
 
-        def describe_task(self, title: str, context: str | None = None):
-            return f"Descripción generada para: {title}"
-
-        def update_task_description(self, task_id: int, description: str):
-            return self.real_manager.update_task_description(task_id, description)
+        def update_task(self, task: Task):
+            return self.real_manager.update_task(task)
 
     fake_manager = FakeManager()
-    monkeypatch.setattr("app.routes.ai_tasks.manager", fake_manager)
+    fake_controller = TaskController(manager=fake_manager)
+
+    # Mock LLMClient para que retorne descripción generada
+    class FakeLLMClient:
+        def chat_completion(self, messages, temperature=0.5, max_completion_tokens=200):
+            return "Descripción generada para: Implementar API"
+
+    monkeypatch.setattr("app.controllers.tasks_controller.LLMClient", lambda *args, **kwargs: FakeLLMClient())
+    monkeypatch.setattr("app.routes.ai_tasks.controller", fake_controller)
 
     client = TestClient(app)
     response = client.post("/ai/tasks/1/describe")
@@ -53,18 +57,30 @@ def test_describe_task_endpoint_returns_404_for_nonexistent_task() -> None:
     assert response.status_code == 404
 
 
-def test_task_manager_describe_task_calls_llm_client(monkeypatch, tmp_path) -> None:
-    class FakeClient:
+def test_controller_describe_task_calls_llm_client(monkeypatch, tmp_path) -> None:
+    class FakeLLMClient:
         def chat_completion(self, messages, temperature=0.5, max_completion_tokens=200):
-            # No especifica model: LLMClient debería usar su default_model
             assert any("Describe" in message["content"] for message in messages)
             return "Descripción de prueba."
 
-    monkeypatch.setattr("app.services.task_manager.LLMClient", lambda *args, **kwargs: FakeClient())
-
-    from app.services.task_manager import TaskManager
+    monkeypatch.setattr("app.controllers.tasks_controller.LLMClient", lambda *args, **kwargs: FakeLLMClient())
 
     manager = TaskManager(data_file=tmp_path / "tasks.json")
-    description = manager.describe_task("Probar AI", context="Detalle de prueba")
+    # Crear tarea de prueba
+    task = Task(
+        id=1,
+        title="Probar AI",
+        description="Detalle de prueba",
+        priority=Priority.MEDIA,
+        effort_hours=5.0,
+        status=Status.PENDIENTE,
+        assigned_to="juan",
+    )
+    manager.save_tasks([task])
 
-    assert description == "Descripción de prueba."
+    controller = TaskController(manager=manager)
+    result = controller.describe_task(1)
+
+    assert result.description == "Descripción de prueba."
+    assert result.title == "Probar AI"
+

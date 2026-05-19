@@ -1,6 +1,8 @@
 from typing import List
 
+from app.config.prompts import DESCRIBE_TASK_PROMPT
 from app.models.task import Task, TaskCreate
+from app.services.llm_client import LLMClient
 from app.services.task_manager import TaskManager
 
 
@@ -14,11 +16,7 @@ class TaskController:
         return self.manager.load_tasks()
 
     def get_task(self, task_id: int) -> Task:
-        tasks = self.manager.load_tasks()
-        for task in tasks:
-            if task.id == task_id:
-                return task
-        raise ValueError(f"Tarea con id {task_id} no encontrada")
+        return self.manager.get_task(task_id)
 
     def create_task(self, task_data: TaskCreate) -> Task:
         tasks = self.manager.load_tasks()
@@ -44,3 +42,50 @@ class TaskController:
         if len(filtered) == len(tasks):
             raise ValueError(f"Tarea con id {task_id} no encontrada")
         self.manager.save_tasks(filtered)
+
+    def describe_task(self, task_id: int) -> Task:
+        """Genera descripción para una tarea existente usando Azure OpenAI."""
+        # Obtener tarea
+        task = self.manager.get_task(task_id)
+        
+        # Generar descripción usando LLM
+        title_value = task.title.strip()
+        context_value = (task.description or "").strip() or "Sin contexto adicional."
+        prompt = DESCRIBE_TASK_PROMPT.format(
+            title=title_value,
+            context=context_value,
+        )
+
+        client = LLMClient()
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Eres un asistente experto en describir tareas técnicas de forma concisa y profesional. "
+                    "Devuelve solo la descripción de la tarea, sin encabezados ni explicaciones adicionales."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+
+        description = client.chat_completion(
+            messages=messages,
+            temperature=0.5,
+            max_completion_tokens=200,
+        )
+
+        # Actualizar tarea con descripción generada
+        updated_task = Task(
+            id=task.id,
+            title=task.title,
+            description=description.strip(),
+            priority=task.priority,
+            effort_hours=task.effort_hours,
+            status=task.status,
+            assigned_to=task.assigned_to,
+            category=task.category,
+            risk_analysis=task.risk_analysis,
+            risk_mitigation=task.risk_mitigation,
+        )
+        
+        return self.manager.update_task(updated_task)
