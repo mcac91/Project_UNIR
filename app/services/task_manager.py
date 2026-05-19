@@ -34,6 +34,14 @@ class TaskManager:
             return []
         return [Task.from_dict(item) for item in raw_items]
 
+    def get_task(self, task_id: int) -> Task:
+        """Obtiene una tarea por su ID."""
+        tasks = self.load_tasks()
+        for task in tasks:
+            if task.id == task_id:
+                return task
+        raise ValueError(f"Tarea con id {task_id} no encontrada")
+
     def save_tasks(self, tasks: List[Task]) -> None:
         """Guarda la lista de objetos Task en el archivo JSON."""
         self.data_file.parent.mkdir(parents=True, exist_ok=True)
@@ -81,3 +89,27 @@ class TaskManager:
         )
 
         return description.strip()
+
+    def update_task_description(self, task_id: int, description: str) -> Task:
+        """Actualiza la descripción de una tarea existente."""
+        tasks = self.load_tasks()
+        for index, task in enumerate(tasks):
+            if task.id == task_id:
+                # Crear copia con descripción actualizada
+                updated_task = Task(
+                    id=task.id,
+                    title=task.title,
+                    description=description,
+                    priority=task.priority,
+                    effort_hours=task.effort_hours,
+                    status=task.status,
+                    assigned_to=task.assigned_to,
+                    category=task.category,
+                    risk_analysis=task.risk_analysis,
+                    risk_mitigation=task.risk_mitigation,
+                )
+                tasks[index] = updated_task
+                self.save_tasks(tasks)
+                logger.info("Tarea %d actualizada con descripción generada por IA", task_id)
+                return updated_task
+        raise ValueError(f"Tarea con id {task_id} no encontrada")
