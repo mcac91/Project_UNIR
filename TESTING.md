@@ -124,8 +124,87 @@ El servidor estará disponible en `http://127.0.0.1:8000` y la documentación in
 - Verificar con GET /tasks que la tarea ya no existe
 
 ---
+### Prueba 6: Describir Tarea con IA (POST /ai/tasks/{id}/describe)
 
-### Prueba 6: Error 404 (Tarea no encontrada)
+**URL:** `POST http://127.0.0.1:8000/ai/tasks/1/describe`
+
+**Descripción:** Genera una descripción con IA y actualiza la tarea.
+
+**Respuesta esperada:** Status 200 OK
+
+**Validar:**
+- Status HTTP 200
+- El objeto devuelto contiene `description`
+- `description` es un texto no vacío y relevante para la tarea
+
+---
+
+### Prueba 7: Categorizar Tarea con IA (POST /ai/tasks/{id}/categorize)
+
+**URL:** `POST http://127.0.0.1:8000/ai/tasks/1/categorize`
+
+**Descripción:** Clasifica la tarea en una categoría válida.
+
+**Respuesta esperada:** Status 200 OK
+
+**Validar:**
+- Status HTTP 200
+- El objeto devuelto contiene `category`
+- `category` es uno de: Frontend, Backend, Testing, Infra, Docs, Other
+
+---
+
+### Prueba 8: Estimar Esfuerzo con IA (POST /ai/tasks/{id}/estimate)
+
+**URL:** `POST http://127.0.0.1:8000/ai/tasks/1/estimate`
+
+**Descripción:** Estima el esfuerzo en horas y actualiza `effort_hours`.
+
+**Respuesta esperada:** Status 200 OK
+
+**Validar:**
+- Status HTTP 200
+- El objeto devuelto contiene `effort_hours`
+- `effort_hours` es un número decimal mayor o igual a 0.5 y menor o igual a 80
+
+---
+
+### Prueba 9: Auditar Tarea con IA (POST /ai/tasks/{id}/audit)
+
+**URL:** `POST http://127.0.0.1:8000/ai/tasks/1/audit`
+
+**Descripción:** Analiza los riesgos y propone mitigación para una tarea.
+
+**Respuesta esperada:** Status 200 OK
+
+**Validar:**
+- Status HTTP 200
+- El objeto devuelto contiene `risk_analysis` y `risk_mitigation`
+- Ambos campos son textos no vacíos con al menos 50 caracteres
+
+---
+
+### Prueba 10: Error 404 en endpoints IA (ID no existente)
+
+**URL:** `POST http://127.0.0.1:8000/ai/tasks/999/describe`
+
+**Respuesta esperada:** Status 404 Not Found
+
+**Validar:**
+- Status HTTP 404
+- Respuesta contiene mensaje de error
+
+---
+
+### Prueba 11: Probar IA desde Swagger UI
+
+1. Abrir `http://127.0.0.1:8000/docs`
+2. Buscar el grupo `ai-tasks`
+3. Ejecutar los endpoints `/ai/tasks/{id}/describe`, `/categorize`, `/estimate`, `/audit`
+4. Confirmar que la tarea se actualiza en la respuesta y que los campos aparecen en el objeto Task
+
+---
+### Prueba 12: Error 404 (Tarea no encontrada)
 
 **URL:** `GET http://127.0.0.1:8000/tasks/999`
 
@@ -166,4 +245,8 @@ print("Base de datos limpada")
 | GET | /tasks/{id} | Obtener una | 200 |
 | PUT | /tasks/{id} | Actualizar | 200 |
 | DELETE | /tasks/{id} | Eliminar | 204 |
+| POST | /ai/tasks/{id}/describe | Generar descripción IA | 200 |
+| POST | /ai/tasks/{id}/categorize | Asignar categoría IA | 200 |
+| POST | /ai/tasks/{id}/estimate | Estimar esfuerzo IA | 200 |
+| POST | /ai/tasks/{id}/audit | Auditoría de riesgos IA | 200 |
 
