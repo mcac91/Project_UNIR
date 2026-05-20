@@ -26,6 +26,9 @@ class TaskBase(BaseModel):
     effort_hours: float = Field(..., ge=0)
     status: Status
     assigned_to: str = Field(..., min_length=1)
+    category: str = Field("", description="Categoría de la tarea")
+    risk_analysis: str | None = Field(default=None, description="Análisis de riesgos generado")
+    risk_mitigation: str | None = Field(default=None, description="Mitigación de riesgos generada")
 
 
 class TaskCreate(TaskBase):

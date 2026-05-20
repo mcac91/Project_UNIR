@@ -12,3 +12,12 @@ starlette==1.0.0
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 uvicorn==0.46.0
+
+# LLM Integration (Entregable 2)
+openai==2.37.0
+python-dotenv==1.0.1
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.23.2
+pytest-cov==4.1.0
