@@ -22,3 +22,20 @@ ESTIMATE_EFFORT_PROMPT = (
     "Categoría: {category}\n"
     "Responde SOLO con el JSON, sin texto adicional."
 )
+
+AUDIT_RISK_ANALYSIS_PROMPT = (
+    "Analiza los riesgos técnicos de esta tarea en 150-200 palabras.\n"
+    "Título: {title}\n"
+    "Descripción: {description}\n"
+    "Categoría: {category}\n"
+    "Esfuerzo estimado: {effort_hours}h\n"
+    "Responde con el análisis de riesgos en un texto claro y profesional."
+)
+
+AUDIT_RISK_MITIGATION_PROMPT = (
+    "Propone estrategias para mitigar estos riesgos en 150-200 palabras.\n"
+    "Riesgos identificados: {risk_analysis}\n"
+    "Tarea: {title}\n"
+    "Esfuerzo estimado: {effort_hours}h\n"
+    "Responde con una mitigación práctica y relevante al análisis."
+)

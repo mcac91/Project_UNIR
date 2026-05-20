@@ -4,9 +4,15 @@ import re
 from typing import List
 
 from app.config.constants import TASK_CATEGORIES, DEFAULT_CATEGORY
-from app.config.prompts import DESCRIBE_TASK_PROMPT, CATEGORIZE_TASK_PROMPT, ESTIMATE_EFFORT_PROMPT
+from app.config.prompts import (
+    AUDIT_RISK_ANALYSIS_PROMPT,
+    AUDIT_RISK_MITIGATION_PROMPT,
+    CATEGORIZE_TASK_PROMPT,
+    DESCRIBE_TASK_PROMPT,
+    ESTIMATE_EFFORT_PROMPT,
+)
 from app.models.task import Task, TaskCreate
-from app.services.llm_client import LLMClient
+from app.services.llm_client import LLMClient, LLMResponseError
 from app.services.task_manager import TaskManager
 
 logger = logging.getLogger(__name__)
@@ -65,6 +71,18 @@ def parse_effort_response(response: str) -> float:
             logger.warning(f"Horas número fuera de rango: {hours}")
     
     raise ValueError(f"No se pudo extraer horas válidas de: {response}")
+
+
+def validate_audit_text(text: str, field_name: str) -> str:
+    """Valida el texto de auditoría para asegurar longitud mínima y contenido."""
+    if not text or not text.strip():
+        raise ValueError(f"{field_name} no puede estar vacío")
+
+    cleaned = text.strip()
+    if len(cleaned) < 50:
+        raise ValueError(f"{field_name} debe tener al menos 50 caracteres")
+
+    return cleaned
 
 
 class TaskController:
@@ -205,6 +223,100 @@ class TaskController:
             risk_mitigation=task.risk_mitigation,
         )
         
+        return self.manager.update_task(updated_task)
+
+    def _validate_audit_inputs(self, task: Task) -> None:
+        if not task.title or not task.title.strip():
+            raise ValueError("Tarea debe tener title para auditar")
+        if not task.description or not task.description.strip():
+            raise ValueError("Tarea debe tener description para auditar")
+        if not task.category or not task.category.strip():
+            raise ValueError("Tarea debe tener category para auditar")
+        if task.effort_hours <= 0:
+            raise ValueError("Tarea debe tener effort_hours mayor a 0 para auditar")
+
+    def _generate_audit_text(self, messages: list[dict[str, str]], field_name: str) -> str:
+        last_error: Exception | None = None
+        client = LLMClient()
+
+        for attempt in range(2):
+            response = client.chat_completion(
+                messages=messages,
+                temperature=0.4,
+                max_completion_tokens=250,
+            )
+            try:
+                return validate_audit_text(response, field_name)
+            except ValueError as error:
+                last_error = error
+                logger.warning(
+                    "Validación de %s falló en intento %d: %s",
+                    field_name,
+                    attempt + 1,
+                    error,
+                )
+
+        raise LLMResponseError(
+            f"No se pudo generar {field_name} válido tras varios intentos: {last_error}"
+        )
+
+    def _analyze_risks(self, task: Task) -> str:
+        prompt = AUDIT_RISK_ANALYSIS_PROMPT.format(
+            title=task.title.strip(),
+            description=task.description.strip(),
+            category=task.category.strip() or DEFAULT_CATEGORY,
+            effort_hours=task.effort_hours,
+        )
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Eres un asistente experto en análisis de riesgos técnicos. "
+                    "Genera un análisis objetivo y claro de los riesgos asociados a la tarea."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+        return self._generate_audit_text(messages, "risk_analysis")
+
+    def _mitigate_risks(self, task: Task, risk_analysis: str) -> str:
+        prompt = AUDIT_RISK_MITIGATION_PROMPT.format(
+            title=task.title.strip(),
+            risk_analysis=risk_analysis.strip(),
+            effort_hours=task.effort_hours,
+        )
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Eres un asistente experto en mitigación de riesgos técnicos. "
+                    "Propón acciones prácticas para reducir los riesgos identificados."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+        return self._generate_audit_text(messages, "risk_mitigation")
+
+    def audit_task(self, task_id: int) -> Task:
+        """Analiza riesgos y propone mitigación para una tarea existente."""
+        task = self.manager.get_task(task_id)
+        self._validate_audit_inputs(task)
+
+        risk_analysis = self._analyze_risks(task)
+        risk_mitigation = self._mitigate_risks(task, risk_analysis)
+
+        updated_task = Task(
+            id=task.id,
+            title=task.title,
+            description=task.description,
+            priority=task.priority,
+            effort_hours=task.effort_hours,
+            status=task.status,
+            assigned_to=task.assigned_to,
+            category=task.category,
+            risk_analysis=risk_analysis,
+            risk_mitigation=risk_mitigation,
+        )
         return self.manager.update_task(updated_task)
 
     def estimate_effort(self, task_id: int) -> Task:
